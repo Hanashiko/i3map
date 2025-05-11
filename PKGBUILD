@@ -7,10 +7,15 @@ arch=('any')
 url="https://github.com/Hanashiko/i3map"
 license=('MIT')
 depends=('python')
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
-sha256sums=('c977274c64ad255d7c6b968931f4325c3fa23fe657f1ec964461cc0fbb74ce25')
+makedepends=('python-setuptools')
+install="$pkgname.install"
+source=("i3map.py" "LICENSE" "README.md")
+sha256sums=('SKIP' 'SKIP' 'SKIP')
 
 package() {
-    cd "${pkgname}-${pkgver}"
+    cd "$srcdir"
+
     install -Dm755 i3map.py "$pkgdir/usr/bin/i3map"
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
 }
