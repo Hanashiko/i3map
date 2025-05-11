@@ -1,4 +1,4 @@
-# Maintainer: Hnashiko
+# Maintainer: Hnashiko hlichisper@gmail.com
 pkgname=i3map
 pkgver=1.0.0
 pkgrel=1
@@ -7,10 +7,10 @@ arch=('any')
 url="https://github.com/Hanashiko/i3map"
 license=('MIT')
 depends=('python')
-makedepends=('git')
-source=("$pkgname::git+https://github.com/Hanashiko/i3map.git#tag=v$pkgver")
-md5sums=('SKIP')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
+sha256sums=('c977274c64ad255d7c6b968931f4325c3fa23fe657f1ec964461cc0fbb74ce25')
 
 package() {
-    install -Dm755 "$srcdir/$pkgname/i3map.py" "$pkgdir/usr/bin/i3map"
+    cd "${pkgname}-${pkgver}"
+    install -Dm755 i3map.py "$pkgdir/usr/bin/i3map"
 }
