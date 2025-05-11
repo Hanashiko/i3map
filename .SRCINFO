@@ -1,0 +1,12 @@
+pkgbase = i3map
+    pkgdes = Generate a table of i3wm keybindings from your config file
+    pkgver = 1.0.0
+    pkrel = 1
+    url = https://github.com/Hanashiko/i3map
+    arch = any
+    license = MIT
+    makedepends = git
+    depends = python
+    source = i3map::git+https://github.com/Hanashiko/i3map.git#tag=v1.0.0
+    md5sums = SKIP
+pkgname = i3map
