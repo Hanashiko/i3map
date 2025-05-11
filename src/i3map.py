@@ -1,1 +1,0 @@
-/home/hani/MyPkgs/i3map/i3map.py
