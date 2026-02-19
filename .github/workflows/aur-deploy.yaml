@@ -16,6 +16,7 @@ jobs:
               run: |
                 pacman -Syu --noconfirm
                 pacman -S --noconfirm git openssh pacman-contrib namcap python python-setuptools
+                useradd -m builder
         
             - name: Checkout source
               uses: actions/checkout@v4
@@ -35,12 +36,11 @@ jobs:
 
             - name: Update sha256sums
               run: |
-                updpkgsums
+                chown -R builder:builder .
+                su builder -c "updpkgsums"
 
             - name: Generate .SRCINFO
               run: |
-                useradd -m builder
-                chown -R builder:builder .
                 su builder -c "makepkg --printsrcinfo > .SRCINFO"
 
             - name: Validate PKGBUILD
