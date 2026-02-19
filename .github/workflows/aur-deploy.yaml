@@ -1,0 +1,70 @@
+name: Deploy to AUR
+
+on:
+    push:
+        tags:
+            - "v*"
+
+jobs:
+    deploy:
+        runs-on: ubuntu:24.04
+        container:
+            image: archlinux:latest
+
+        steps:
+            - name: Install dependencies
+              run: |
+                pacman -Syu --noconfirm
+                pacman -S --noconfirm git openssh pacman-contrib namcap python python-setuptools
+        
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Extract verion from tag
+              id: version
+              run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+            - name: Update version in PKGBUILD
+              run: |
+                sed -i "s/^pkgver=.*/pkgver=${{ steps.version.outputs.VERSION }}/" PKGBUILD
+                sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+
+            - name: Update version in setup.py
+              run: |
+                sed -i "s/version=\"[^\"]*\"/version=\"${{ steps.version.outputs.VERSION }}\"/" setup.py
+
+            - name: Update sha256sums
+              run: |
+                updpkgsums
+
+            - name: Generate .SRCINFO
+              run: |
+                useradd -m builder
+                chown -R builder:builder .
+                su builder -c "makepkg --printsrcinfo > .SRCINFO"
+
+            - name: Validate PKGBUILD
+              run: |
+                su builder -c "namcap PKGBUILD"
+
+            - name: Setup SSH for AUR
+              run: |
+                mkdir -p /root/.ssh
+                echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" | base64 -d > /root/.ssh/aur
+                chmod 600 /root/.ssh/aur
+                echo -e "Host aur.archlinux.org\n IdentifyFile /root/.ssh/aur\n User aur\n StrictHostKeyChecking no" > /root/.ssh/config
+
+            - name: Push to AUR
+              run: |
+                git config --global user.name "Hanashiko"
+                git config --global user.email "hlichisper@gmail.com"
+
+                git clone ssh://aur@aur.archlinux.org/i3map.git /tmp/aur-repo
+
+                cp PKGBUILD .SRCINFO i3map.py i3map.install LICENSE README.md setup.py /tmp/aur-repo/
+
+                cd /tmp/aur-repo
+                git add -A
+                git diff --cached -quiet && echo "No changes to push" && exit 0
+                git commit -m "Update to v${{ steps.version.outputs.VERSION }}"
+                git push origin master
