@@ -52,7 +52,7 @@ jobs:
                 mkdir -p /root/.ssh
                 echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" | base64 -d > /root/.ssh/aur
                 chmod 600 /root/.ssh/aur
-                echo -e "Host aur.archlinux.org\n IdentifyFile /root/.ssh/aur\n User aur\n StrictHostKeyChecking no" > /root/.ssh/config
+                echo -e "Host aur.archlinux.org\n IdentityFile /root/.ssh/aur\n User aur\n StrictHostKeyChecking no" > /root/.ssh/config
 
             - name: Push to AUR
               run: |
